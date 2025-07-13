@@ -459,7 +459,7 @@ function renderDivisionWinners() {
       const matchup = document.createElement("div");
       matchup.className = "matchup";
       teams.forEach(team => {
-        const card = createTeamCard(team, new Set([team]), () => onTeamSelect(round, index, team), false, true);
+        const card = createTeamCard(team, new Set([team]), () => onTeamSelect(round, index, team), false, false);
         // Grey out if this team is not selected and another is selected
         if(round === "qf" && qfWinners[index] && qfWinners[index] !== team) {
           card.classList.add("disabled");
