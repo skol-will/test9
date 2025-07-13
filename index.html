@@ -455,33 +455,43 @@ function renderDivisionWinners() {
     let finalWinner = null;
 
     // Create a matchup box with two team cards
-    function createMatchup(teams, round, index) {
-      const matchup = document.createElement("div");
-      matchup.className = "matchup";
-      teams.forEach(team => {
-        const card = createTeamCard(team, new Set([team]), () => onTeamSelect(round, index, team), false, false);
-        // Grey out if this team is not selected and another is selected
-        if(round === "qf" && qfWinners[index] && qfWinners[index] !== team) {
-          card.classList.add("disabled");
-        }
-        if(round === "sf" && sfWinners[index] && sfWinners[index] !== team) {
-          card.classList.add("disabled");
-        }
-        if(round === "final" && finalWinner && finalWinner !== team) {
-          card.classList.add("disabled");
-        }
-        if(
-          (round === "qf" && qfWinners[index] === team) ||
-          (round === "sf" && sfWinners[index] === team) ||
-          (round === "final" && finalWinner === team)
-        ) {
-          card.classList.add("selected");
-        }
-        matchup.appendChild(card);
-      });
-      return matchup;
-    }
+   function createMatchup(teams, round, index) {
+  const container = document.createElement("div");
 
+  const label = document.createElement("div");
+  label.style.color = "#00bfff";
+  label.style.fontWeight = "bold";
+  label.style.marginBottom = "0.4rem";
+  label.style.textAlign = "center";
+  label.textContent = `Match ${index + 1}`;
+  container.appendChild(label);
+
+  const matchup = document.createElement("div");
+  matchup.className = "matchup";
+  teams.forEach(team => {
+    const card = createTeamCard(team, new Set([team]), () => onTeamSelect(round, index, team), false, false);
+    if(round === "qf" && qfWinners[index] && qfWinners[index] !== team) {
+      card.classList.add("disabled");
+    }
+    if(round === "sf" && sfWinners[index] && sfWinners[index] !== team) {
+      card.classList.add("disabled");
+    }
+    if(round === "final" && finalWinner && finalWinner !== team) {
+      card.classList.add("disabled");
+    }
+    if(
+      (round === "qf" && qfWinners[index] === team) ||
+      (round === "sf" && sfWinners[index] === team) ||
+      (round === "final" && finalWinner === team)
+    ) {
+      card.classList.add("selected");
+    }
+    matchup.appendChild(card);
+  });
+
+  container.appendChild(matchup);
+  return container;
+}
     // Render bracket
     function renderBracket(playoffTeams) {
       bracketContainer.innerHTML = "";
