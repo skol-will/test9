@@ -146,22 +146,6 @@
     gap: 1.5rem;
     margin-top: 2rem;
   }
-  .matchup-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.matchup-label {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 1rem;
-  color: #00bfff;
-  margin-bottom: 0.3rem;
-  text-align: center;
-}
-
   .round {
     background: #1a1a1a;
     padding: 1rem;
@@ -177,19 +161,16 @@
     color: #00bfff;
   }
   .matchup {
-  background: #222;
-  border-radius: 8px;
-  padding: 1rem 0.5rem;
-  margin-bottom: 1rem;
-  width: 100%;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: 2px solid transparent;
-  user-select: none;
+    background: #222;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    border: 2px solid transparent;
+    user-select: none;
   }
   .matchup.active {
     border-color: #00bfff;
@@ -474,29 +455,31 @@ function renderDivisionWinners() {
     let finalWinner = null;
 
     // Create a matchup box with two team cards
-   function createLabeledMatchup(teams, round, index) {
+   function createMatchup(teams, round, index) {
   const container = document.createElement("div");
-  container.className = "matchup-container";
 
   const label = document.createElement("div");
-  label.className = "matchup-label";
+  label.style.color = "#00bfff";
+  label.style.fontWeight = "bold";
+  label.style.marginBottom = "0.4rem";
+  label.style.textAlign = "center";
   label.textContent = `Match ${index + 1}`;
   container.appendChild(label);
 
   const matchup = document.createElement("div");
   matchup.className = "matchup";
-
   teams.forEach(team => {
     const card = createTeamCard(team, new Set([team]), () => onTeamSelect(round, index, team), false, false);
-    const winner =
-      (round === "qf" && qfWinners[index]) ||
-      (round === "sf" && sfWinners[index]) ||
-      (round === "final" && finalWinner);
-
-    if (winner && winner !== team) {
+    if(round === "qf" && qfWinners[index] && qfWinners[index] !== team) {
       card.classList.add("disabled");
     }
-    if (
+    if(round === "sf" && sfWinners[index] && sfWinners[index] !== team) {
+      card.classList.add("disabled");
+    }
+    if(round === "final" && finalWinner && finalWinner !== team) {
+      card.classList.add("disabled");
+    }
+    if(
       (round === "qf" && qfWinners[index] === team) ||
       (round === "sf" && sfWinners[index] === team) ||
       (round === "final" && finalWinner === team)
@@ -522,9 +505,9 @@ function renderDivisionWinners() {
       quarterfinals.appendChild(qfTitle);
 
       for(let i=0; i<4; i++) {
-  const matchupTeams = playoffTeams.slice(i*2, i*2+2);
-  const matchup = createLabeledMatchup(matchupTeams, "qf", i);
-  quarterfinals.appendChild(matchup);
+        const matchupTeams = playoffTeams.slice(i*2, i*2+2);
+        const matchup = createMatchup(matchupTeams, "qf", i);
+        quarterfinals.appendChild(matchup);
       }
 
       // Semifinals (initially empty)
@@ -536,9 +519,10 @@ function renderDivisionWinners() {
       semifinals.appendChild(sfTitle);
 
       for(let i=0; i<2; i++) {
-  const matchup = createLabeledMatchup([], "sf", i);
-  semifinals.appendChild(matchup);
-}
+        const matchup = document.createElement("div");
+        matchup.className = "matchup";
+        semifinals.appendChild(matchup);
+      }
 
       // Finals (initially empty)
       const finals = document.createElement("div");
@@ -548,8 +532,9 @@ function renderDivisionWinners() {
       fTitle.textContent = "Final";
       finals.appendChild(fTitle);
 
-     const finalMatchup = createLabeledMatchup([], "final", 0);
-finals.appendChild(finalMatchup);
+      const finalMatchup = document.createElement("div");
+      finalMatchup.className = "matchup";
+      finals.appendChild(finalMatchup);
 
       // Champion
       const champion = document.createElement("div");
@@ -558,9 +543,13 @@ finals.appendChild(finalMatchup);
       const cTitle = document.createElement("h3");
       cTitle.textContent = "Champion";
       champion.appendChild(cTitle);
-      const champCardContainer = document.createElement("div");
-champCardContainer.id = "champion-card";
-champion.appendChild(champCardContainer);
+      const champName = document.createElement("div");
+      champName.id = "champion-name";
+      champName.style.marginTop = "1rem";
+      champName.style.textAlign = "center";
+      champName.style.fontWeight = "bold";
+      champName.style.fontSize = "1.4rem";
+      champion.appendChild(champName);
 
       bracketContainer.appendChild(quarterfinals);
       bracketContainer.appendChild(semifinals);
@@ -592,49 +581,43 @@ champion.appendChild(champCardContainer);
     function updateBracket() {
       // Update semifinals from quarterfinal winners
       const semifinals = document.querySelectorAll("#semifinals .matchup");
-for (let i = 0; i < 2; i++) {
-  const team1 = qfWinners[i * 2];
-  const team2 = qfWinners[i * 2 + 1];
-  const matchup = semifinals[i];
-  matchup.innerHTML = "";
+      for(let i=0; i<2; i++) {
+        const team1 = qfWinners[i*2];
+        const team2 = qfWinners[i*2+1];
+        const matchup = semifinals[i];
+        matchup.innerHTML = "";
 
-  if (team1) {
-    const t1 = createTeamCard(team1, new Set([team1]), () => onTeamSelect("sf", i, team1), false, false);
-    if (sfWinners[i] && sfWinners[i] !== team1) t1.classList.add("disabled");
-    if (sfWinners[i] === team1) t1.classList.add("selected");
-    matchup.appendChild(t1);
-  }
-  if (team2) {
-    const t2 = createTeamCard(team2, new Set([team2]), () => onTeamSelect("sf", i, team2), false, false);
-    if (sfWinners[i] && sfWinners[i] !== team2) t2.classList.add("disabled");
-    if (sfWinners[i] === team2) t2.classList.add("selected");
-    matchup.appendChild(t2);
-  }
-
-  matchup.parentElement.style.display = (team1 || team2) ? "flex" : "none";
-}
+        if(team1) {
+          const t1 = createTeamCard(team1, new Set([team1]), () => onTeamSelect("sf", i, team1), false, true);
+          if(sfWinners[i] && sfWinners[i] !== team1) t1.classList.add("disabled");
+          if(sfWinners[i] === team1) t1.classList.add("selected");
+          matchup.appendChild(t1);
+        }
+        if(team2) {
+          const t2 = createTeamCard(team2, new Set([team2]), () => onTeamSelect("sf", i, team2), false, true);
+          if(sfWinners[i] && sfWinners[i] !== team2) t2.classList.add("disabled");
+          if(sfWinners[i] === team2) t2.classList.add("selected");
+          matchup.appendChild(t2);
+        }
+        matchup.style.display = (team1 || team2) ? "flex" : "none";
+      }
 
       // Update finals from semifinals winners
       const finalsMatchup = document.querySelector("#finals .matchup");
-finalsMatchup.innerHTML = "";
-const finalists = sfWinners.filter(t => t !== null);
-finalists.forEach(t => {
-  const tDiv = createTeamCard(t, new Set([t]), () => onTeamSelect("final", 0, t), false, false);
-  if (finalWinner && finalWinner !== t) tDiv.classList.add("disabled");
-  if (finalWinner === t) tDiv.classList.add("selected");
-  finalsMatchup.appendChild(tDiv);
-});
-finalsMatchup.parentElement.style.display = finalists.length > 0 ? "flex" : "none";
+      finalsMatchup.innerHTML = "";
+      const finalists = sfWinners.filter(t => t !== null);
+      finalists.forEach(t => {
+        const tDiv = createTeamCard(t, new Set([t]), () => onTeamSelect("final", 0, t), false, true);
+        if(finalWinner && finalWinner !== t) tDiv.classList.add("disabled");
+        if(finalWinner === t) tDiv.classList.add("selected");
+        finalsMatchup.appendChild(tDiv);
+      });
+      finalsMatchup.style.display = finalists.length > 0 ? "flex" : "none";
 
       // Update champion display
-      cconst champCardContainer = document.getElementById("champion-card");
-champCardContainer.innerHTML = "";
+      const champName = document.getElementById("champion-name");
+      champName.textContent = finalWinner ? finalWinner : "";
 
-if (finalWinner) {
-  const champCard = createTeamCard(finalWinner, new Set([finalWinner]), () => {}, true, false);
-  champCard.classList.add("selected");
-  champCardContainer.appendChild(champCard);
-}
       // Hide champion section if no winner yet
       document.getElementById("champion").style.display = finalWinner ? "flex" : "none";
 
