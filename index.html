@@ -555,13 +555,9 @@ finals.appendChild(finalMatchup);
       const cTitle = document.createElement("h3");
       cTitle.textContent = "Champion";
       champion.appendChild(cTitle);
-      const champName = document.createElement("div");
-      champName.id = "champion-name";
-      champName.style.marginTop = "1rem";
-      champName.style.textAlign = "center";
-      champName.style.fontWeight = "bold";
-      champName.style.fontSize = "1.4rem";
-      champion.appendChild(champName);
+      const champCardContainer = document.createElement("div");
+champCardContainer.id = "champion-card";
+champion.appendChild(champCardContainer);
 
       bracketContainer.appendChild(quarterfinals);
       bracketContainer.appendChild(semifinals);
@@ -628,9 +624,14 @@ finalists.forEach(t => {
 finalsMatchup.parentElement.style.display = finalists.length > 0 ? "flex" : "none";
 
       // Update champion display
-      const champName = document.getElementById("champion-name");
-      champName.textContent = finalWinner ? finalWinner : "";
+      cconst champCardContainer = document.getElementById("champion-card");
+champCardContainer.innerHTML = "";
 
+if (finalWinner) {
+  const champCard = createTeamCard(finalWinner, new Set([finalWinner]), () => {}, true, false);
+  champCard.classList.add("selected");
+  champCardContainer.appendChild(champCard);
+}
       // Hide champion section if no winner yet
       document.getElementById("champion").style.display = finalWinner ? "flex" : "none";
 
